@@ -1,7 +1,9 @@
-import sqlite3, json, hashlib
+import sqlite3, json, hashlib, os
 from datetime import datetime
 
-DB_PATH = "cache.db"
+# Use absolute path to ensure cache works regardless of working directory
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH = os.path.join(PROJECT_ROOT, "cache.db")
 
 def init_db():
     con = sqlite3.connect(DB_PATH)
