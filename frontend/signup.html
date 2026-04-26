@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up | AI Research Agent</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Hide Spline watermark only */
+        .auth-visual a[href*="spline.design"] {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-visual" style="background: #000000; color: #e6edf3; overflow: hidden;">
+            <div id="spline-loader" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5;">
+                <div class="spinner" style="border-top-color: #00f5ff;"></div>
+            </div>
+            <canvas id="canvas3d" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; opacity: 0; transition: opacity 0.8s ease;"></canvas>
+
+            <div style="margin-top: auto; position: relative; z-index: 10;">
+                <h2 style="font-size: 4rem; line-height: 1; margin-bottom: 2rem; color: #e6edf3; font-weight: 800;">Synthesize Knowledge <span style="color: var(--accent-cyan);">at the Cognitive Horizon</span></h2>
+                <p style="color: rgba(230, 237, 243, 0.6); font-weight: 500;">Join the network of autonomous discovery.</p>
+            </div>
+
+            <script type="module">
+                import { Application } from 'https://esm.sh/@splinetool/runtime';
+                
+                const canvas = document.getElementById('canvas3d');
+                const loader = document.getElementById('spline-loader');
+                const spline = new Application(canvas);
+                
+                spline.load('https://prod.spline.design/zcgiPBynhH0NZq7p/scene.splinecode')
+                    .then(() => {
+                        loader.style.display = 'none';
+                        canvas.style.opacity = '1';
+                        console.log('✅ 3D Robot loaded successfully');
+
+                        // Remove only the Spline watermark logo element
+                        function removeWatermark() {
+                            const visual = document.querySelector('.auth-visual');
+                            visual.querySelectorAll('a[href*="spline.design"]').forEach(el => el.remove());
+                            visual.querySelectorAll(':scope > div').forEach(el => {
+                                if (el.querySelector('a[href*="spline"]')) {
+                                    el.remove();
+                                }
+                            });
+                        }
+                        setTimeout(removeWatermark, 300);
+                        setTimeout(removeWatermark, 1000);
+                        setTimeout(removeWatermark, 2000);
+                    })
+                    .catch((err) => {
+                        console.error('❌ Spline scene failed to load:', err);
+                        loader.innerHTML = '<p style="color: #ff6b6b; font-size: 0.875rem; text-align: center;">3D scene failed to load.<br>Check your internet connection.</p>';
+                    });
+            </script>
+        </div>
+        <div class="auth-form-container">
+            <div class="logo" style="margin-bottom: 3rem;">
+                <div style="width: 20px; height: 20px; background: var(--accent-cyan);"></div>
+                AI Research Agent
+            </div>
+
+            <h1 style="font-size: 2.5rem; line-height: 1.1; margin-bottom: 1rem;">Create Access Account</h1>
+            <p style="color: var(--text-muted); margin-bottom: 2.5rem;">Establish your credentials to join the neural network.</p>
+            
+            <form id="signup-form">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-control" placeholder="name@corp.ai" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" class="form-control" placeholder="••••••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <input type="password" class="form-control" placeholder="••••••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 1rem; margin-top: 1rem;">
+                    Get Access Now
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                Already a member? <a href="login.html">Sign In</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            window.location.href = 'login.html';
+        });
+    </script>
+</body>
+</html>
