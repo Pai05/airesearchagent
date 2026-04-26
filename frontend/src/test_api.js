@@ -2,10 +2,15 @@ import { searchPapers } from './api.js';
 
 async function runTest() {
   try {
-    const data = await searchPapers("test");
+    const data = await searchPapers("machine learning", 5);
     const firstPaper = data.papers[0];
     
     console.log("total paper count:", data.total);
+    if (!firstPaper) {
+      console.log("No papers returned by backend for this query.");
+      return;
+    }
+
     console.log("first paper title:", firstPaper.title);
     console.log("first paper id:", firstPaper.id);
     console.log("first paper findings:", firstPaper.findings);

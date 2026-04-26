@@ -1,10 +1,95 @@
+import json
+import re
+
+import requests
+
 from backend.cache import get_cached, save_to_cache
+from backend.config import GROQ_API_KEY, GROQ_BASE_URL, GROQ_MODEL
 from pipeline.extractor_mock import extract_findings_mock
 
+
+def _normalize_extraction(payload: dict) -> tuple[list[str], list[str]]:
+    findings = payload.get("findings", []) if isinstance(payload, dict) else []
+    gaps = payload.get("gaps", []) if isinstance(payload, dict) else []
+
+    if not isinstance(findings, list):
+        findings = []
+    if not isinstance(gaps, list):
+        gaps = []
+
+    findings = [str(item).strip() for item in findings if str(item).strip()]
+    gaps = [str(item).strip() for item in gaps if str(item).strip()]
+
+    return findings[:3], gaps[:2]
+
+
+def _parse_groq_response(content: str) -> tuple[list[str], list[str]]:
+    try:
+        return _normalize_extraction(json.loads(content))
+    except json.JSONDecodeError:
+        pass
+
+    match = re.search(r"\{[\s\S]*\}", content)
+    if not match:
+        return [], []
+
+    try:
+        return _normalize_extraction(json.loads(match.group(0)))
+    except json.JSONDecodeError:
+        return [], []
+
+
+def _extract_findings_groq(abstract: str) -> tuple[list[str], list[str]]:
+    headers = {
+        "Authorization": f"Bearer {GROQ_API_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    prompt = (
+        "Extract exactly 3 key findings and exactly 2 research gaps from the abstract. "
+        "Return ONLY valid JSON with keys findings and gaps. "
+        "Format: {\"findings\": [\"...\", \"...\", \"...\"], \"gaps\": [\"...\", \"...\"]}.\n\n"
+        f"Abstract:\n{abstract[:4000]}"
+    )
+
+    payload = {
+        "model": GROQ_MODEL,
+        "temperature": 0,
+        "max_tokens": 300,
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a precise research assistant that returns strict JSON only.",
+            },
+            {
+                "role": "user",
+                "content": prompt,
+            },
+        ],
+    }
+
+    response = requests.post(
+        f"{GROQ_BASE_URL}/chat/completions",
+        headers=headers,
+        json=payload,
+        timeout=20,
+    )
+    response.raise_for_status()
+
+    data = response.json()
+    content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+    findings, gaps = _parse_groq_response(content)
+
+    if findings and gaps:
+        return findings, gaps
+
+    raise ValueError("Groq response did not contain valid findings/gaps JSON")
+
 def extract_findings(papers: list[dict], topic: str = "") -> list[dict]:
-    """Extract findings and gaps using mock extractor (parses abstracts locally)."""
+    """Extract findings and gaps using Groq when configured, else local mock extractor."""
     to_process = []
     cached_map = {}
+    use_groq = bool(GROQ_API_KEY)
 
     for p in papers:
         if not p.get("id"):
@@ -21,17 +106,29 @@ def extract_findings(papers: list[dict], topic: str = "") -> list[dict]:
     print(f"Needs extraction: {len(to_process)}")
 
     if to_process:
-        print("Extracting findings from abstracts (mock)...")
+        if use_groq:
+            print(f"Extracting findings from abstracts (Groq: {GROQ_MODEL})...")
+        else:
+            print("Extracting findings from abstracts (mock)...")
+
         for p in to_process:
             pid = p["id"]
             abstract = p.get("abstract", "")
-            
-            findings, gaps = extract_findings_mock(abstract)
+
+            if use_groq:
+                try:
+                    findings, gaps = _extract_findings_groq(abstract)
+                except Exception as e:
+                    print(f"Groq extraction failed for {pid}: {e}. Falling back to mock.")
+                    findings, gaps = extract_findings_mock(abstract)
+            else:
+                findings, gaps = extract_findings_mock(abstract)
+
             extracted = {"findings": findings, "gaps": gaps}
-            
+
             save_to_cache(pid, topic, extracted)
             cached_map[pid] = extracted
-        
+
         print(f"Extracted {len(to_process)} papers")
 
     for p in papers:

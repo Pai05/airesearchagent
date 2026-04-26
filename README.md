@@ -26,5 +26,12 @@ Returns array of Paper objects (see shared/schema.py)
 
 ## API keys needed
 - ANTHROPIC_API_KEY → get from integrator
+- GROQ_API_KEY (optional) → enables Groq extraction; if missing, app uses local mock extractor
+- GROQ_MODEL (optional) → default `llama-3.1-8b-instant`
 - No key needed for Semantic Scholar (free tier, 100 req/5min)
 - No key needed for arXiv (open)
+
+## Optional Groq Setup
+1. Add `GROQ_API_KEY=your_key` to `.env`
+2. Optional: add `GROQ_MODEL=llama-3.1-8b-instant`
+3. Run backend normally. If Groq fails or key is missing, extractor falls back to local mock mode.
