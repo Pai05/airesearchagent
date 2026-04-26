@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics | AI Research Agent</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .stat-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 245, 255, 0.05);
+        }
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+        .stat-trend {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 1rem;
+        }
+        .trend-up { color: #00ff88; }
+        .trend-down { color: #ff4742; }
+        
+        .chart-placeholder {
+            height: 100px;
+            width: 100%;
+            margin-top: 1.5rem;
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">RESEARCHLENS</div>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">Discover</a>
+                    <a href="library.html" class="nav-link">Library</a>
+                    <a href="analytics.html" class="nav-link active">Analytics</a>
+                </div>
+                <div class="auth-btns">
+                    <span style="color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.5px;">RESEARCHER@UNIVERSITY.EDU</span>
+                    <a href="login.html" class="nav-link" style="font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">SIGN OUT</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 4rem;">
+        <div style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <div class="pill-badge" style="margin-bottom: 1rem;">SYSTEM STATUS • ACTIVE</div>
+                <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Intelligence Analytics</h1>
+                <p style="color: var(--text-muted);">Real-time monitoring of search volume, extraction accuracy, and user satisfaction metrics.</p>
+            </div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); font-weight: 800; letter-spacing: 1px; background: rgba(255,255,255,0.05); padding: 0.75rem 1.25rem; border-radius: 8px; border: 1px solid var(--border);">
+                LAST UPDATED: 2 MINS AGO
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; margin-bottom: 3rem;">
+            <div class="stat-card">
+                <div class="stat-label">Total Searches</div>
+                <div class="stat-value">12,842</div>
+                <div class="stat-trend trend-up">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    +14.2%
+                </div>
+                <div class="chart-placeholder">
+                    <svg width="100%" height="60" viewBox="0 0 200 60" preserveAspectRatio="none">
+                        <path d="M0,50 L20,45 L40,48 L60,35 L80,38 L100,25 L120,28 L140,15 L160,18 L180,5 L200,8" fill="none" stroke="var(--accent-cyan)" stroke-width="2" />
+                        <path d="M0,50 L20,45 L40,48 L60,35 L80,38 L100,25 L120,28 L140,15 L160,18 L180,5 L200,8 L200,60 L0,60 Z" fill="rgba(0, 245, 255, 0.05)" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Total Output</div>
+                <div class="stat-value">845k</div>
+                <div class="stat-trend trend-up">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    +8.5%
+                </div>
+                <div class="chart-placeholder">
+                    <svg width="100%" height="60" viewBox="0 0 200 60" preserveAspectRatio="none">
+                        <path d="M0,40 L30,42 L60,38 L90,30 L120,32 L150,20 L180,22 L200,10" fill="none" stroke="var(--accent-cyan)" stroke-width="2" />
+                        <path d="M0,40 L30,42 L60,38 L90,30 L120,32 L150,20 L180,22 L200,10 L200,60 L0,60 Z" fill="rgba(0, 245, 255, 0.05)" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Accuracy Rate</div>
+                <div class="stat-value">98.4%</div>
+                <div class="stat-trend" style="color: var(--text-muted)">
+                    STABLE
+                </div>
+                <div class="chart-placeholder">
+                    <svg width="100%" height="60" viewBox="0 0 200 60" preserveAspectRatio="none">
+                        <path d="M0,15 L40,16 L80,14 L120,15 L160,14 L200,15" fill="none" stroke="var(--accent-cyan)" stroke-width="2" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Happiness Index</div>
+                <div class="stat-value">4.9/5</div>
+                <div class="stat-trend trend-up">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                    EXCEPTIONAL
+                </div>
+                <div class="chart-placeholder">
+                    <div style="display: flex; justify-content: center; gap: 0.5rem; align-items: center; height: 100%;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent-cyan)" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent-cyan)" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent-cyan)" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent-cyan)" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--accent-cyan)" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin-bottom: 6rem;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 2rem; letter-spacing: 0.5px;">User Feedback & Ratings</h3>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+                <div style="padding: 1.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px;">
+                    <div style="display: flex; color: var(--accent-cyan); margin-bottom: 0.75rem; font-size: 0.8rem;">★★★★★</div>
+                    <p style="font-size: 0.85rem; line-height: 1.6; color: var(--text-main); font-style: italic;">"The knowledge extraction accuracy is phenomenal. It saved me weeks of manual literature review."</p>
+                    <div style="margin-top: 1rem; font-size: 0.65rem; color: var(--text-muted); font-weight: 800;">DR. EMILY CHEN • STANFORD</div>
+                </div>
+                <div style="padding: 1.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px;">
+                    <div style="display: flex; color: var(--accent-cyan); margin-bottom: 0.75rem; font-size: 0.8rem;">★★★★★</div>
+                    <p style="font-size: 0.85rem; line-height: 1.6; color: var(--text-main); font-style: italic;">"The interconnectivity map revealed connections between papers I completely missed."</p>
+                    <div style="margin-top: 1rem; font-size: 0.65rem; color: var(--text-muted); font-weight: 800;">MARCUS VANE • MIT AI LAB</div>
+                </div>
+                <div style="padding: 1.5rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px;">
+                    <div style="display: flex; color: var(--accent-cyan); margin-bottom: 0.75rem; font-size: 0.8rem;">★★★★★</div>
+                    <p style="font-size: 0.85rem; line-height: 1.6; color: var(--text-main); font-style: italic;">"Best research agent on the market. The hypothesis generation is actually useful."</p>
+                    <div style="margin-top: 1rem; font-size: 0.65rem; color: var(--text-muted); font-weight: 800;">SARAH JENKINS • OXFORD</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer style="border-top: 1px solid var(--border); padding: 4rem 0;">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+                <div>
+                    <div class="logo" style="font-size: 1.25rem; margin-bottom: 1rem;">ResearchLens</div>
+                    <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">RESEARCHLENS — POWERED BY SEMANTIC SCHOLAR, ARXIV & PUBMED.</p>
+                </div>
+                <div style="display: flex; gap: 3rem; font-size: 0.65rem; font-weight: 800; color: var(--text-muted); letter-spacing: 1px;">
+                    <a href="#" class="nav-link">PRIVACY POLICY</a>
+                    <a href="#" class="nav-link">TERMS OF SERVICE</a>
+                    <a href="#" class="nav-link">API DOCUMENTATION</a>
+                </div>
+            </div>
+            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">© 2024 RESEARCHLENS. ALL DATASETS SYNCED.</div>
+        </div>
+    </footer>
+</body>
+</html>

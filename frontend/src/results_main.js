@@ -1,7 +1,7 @@
-import { searchPapers } from './api.js';
-import { PaperList } from './components/PaperList.js';
-import { Sidebar } from './components/Sidebar.js';
-import { GapGraph } from './components/GapGraph.js';
+import { searchPapers } from './api.js?v=2';
+import { PaperList } from './components/PaperList.js?v=2';
+import { Sidebar } from './components/Sidebar.js?v=2';
+import { GapGraph } from './components/GapGraph.js?v=2';
 
 // DOM Elements
 const searchInput = document.getElementById('search-input');
@@ -30,6 +30,7 @@ const paperList = new PaperList(
     filtersContainer,
     (paper) => { sidebar.open(paper); }
 );
+console.log('Components initialized');
 
 // Search Function
 async function handleSearch(query) {
@@ -45,6 +46,7 @@ async function handleSearch(query) {
 
     if (topicLabel) topicLabel.textContent = q.toUpperCase();
     if (searchInput) searchInput.value = q;
+    console.log('Search started for:', q);
 
     // Show loading
     if (fetchingBar) fetchingBar.classList.remove('hidden');
@@ -57,6 +59,7 @@ async function handleSearch(query) {
         allPapers = papers;
 
         if (resultsCount) resultsCount.textContent = result.total.toLocaleString();
+        console.log('Search success, papers found:', result.total);
 
         // Render all 3 panels
         paperList.setPapers(papers, result.total);
@@ -73,11 +76,18 @@ async function handleSearch(query) {
 }
 
 // On page load, read topic from URL
-document.addEventListener('DOMContentLoaded', () => {
+function init() {
+    console.log('Init called');
     const urlParams = new URLSearchParams(window.location.search);
     const topic = urlParams.get('topic') || 'machine learning';
     handleSearch(topic);
-});
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
 
 // Listeners
 if (searchButton) {

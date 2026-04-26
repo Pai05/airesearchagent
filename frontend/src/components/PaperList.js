@@ -1,4 +1,17 @@
-import { createPaperCard } from './PaperCard.js';
+import { createPaperCard } from './PaperCard.js?v=2';
+
+function escapeHTML(str) {
+    if (str == null) return '';
+    return String(str).replace(/[&<>'"]/g, 
+        tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag] || tag)
+    );
+}
 
 export class PaperList {
     constructor(container, filterContainer, onOpenSidebar) {
@@ -8,30 +21,46 @@ export class PaperList {
         this.allPapers = [];
         this.filteredPapers = [];
         this.filters = {
-            yearFrom: 2018,
+            yearFrom: 1900,
             yearTo: new Date().getFullYear(),
-            sources: {
-                semantic_scholar: true,
-                arxiv: true,
-                pubmed: true
-            },
+            sources: {},
+            availableSources: new Set(),
             sortBy: 'newest'
         };
     }
 
     setPapers(papers, totalCount) {
+        console.log('PaperList.setPapers called with', papers.length, 'papers');
         this.allPapers = [...papers];
         this.totalCount = totalCount;
+        
+        // Dynamically collect sources
+        this.allPapers.forEach(p => {
+            if (p.source) {
+                this.filters.availableSources.add(p.source);
+            }
+        });
+        
+        // Initialize sources filter if not already set
+        this.filters.availableSources.forEach(src => {
+            if (this.filters.sources[src] === undefined) {
+                this.filters.sources[src] = true;
+            }
+        });
+
         this.applyFilters();
     }
 
     applyFilters() {
         this.filteredPapers = this.allPapers.filter(paper => {
-            const yearMatch = paper.year >= this.filters.yearFrom && paper.year <= this.filters.yearTo;
-            const sourceMatch = this.filters.sources[paper.source] === true;
+            const y = paper.year || 0;
+            const yearMatch = y === 0 || (y >= this.filters.yearFrom && y <= this.filters.yearTo);
+            const src = paper.source || 'unknown';
+            const sourceMatch = this.filters.sources[src] === true;
             return yearMatch && sourceMatch;
         });
 
+        console.log('PaperList.applyFilters: papers after filter:', this.filteredPapers.length);
         this.sortPapers();
         this.render();
     }
@@ -39,11 +68,11 @@ export class PaperList {
     sortPapers() {
         this.filteredPapers.sort((a, b) => {
             if (this.filters.sortBy === 'newest') {
-                return b.published_date.localeCompare(a.published_date);
+                return (b.published_date || "").localeCompare(a.published_date || "");
             } else if (this.filters.sortBy === 'oldest') {
-                return a.published_date.localeCompare(b.published_date);
+                return (a.published_date || "").localeCompare(b.published_date || "");
             } else if (this.filters.sortBy === 'citations') {
-                return b.citation_count - a.citation_count;
+                return (b.citation_count || 0) - (a.citation_count || 0);
             }
             return 0;
         });
@@ -68,7 +97,6 @@ export class PaperList {
             <div class="filters-panel">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
                     <h4 style="text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px;">Filters</h4>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="2" y1="14" x2="6" y2="14"/><line x1="10" y1="12" x2="14" y2="12"/><line x1="18" y1="16" x2="22" y2="16"/></svg>
                 </div>
 
                 <div class="filter-group" style="margin-bottom: 2rem;">
@@ -92,15 +120,11 @@ export class PaperList {
                 <div class="filter-group">
                     <label style="color: var(--text-muted); margin-bottom: 1rem;">Sources</label>
                     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
-                            <input type="checkbox" data-source="semantic_scholar" ${this.filters.sources.semantic_scholar ? 'checked' : ''}> Semantic Scholar
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
-                            <input type="checkbox" data-source="arxiv" ${this.filters.sources.arxiv ? 'checked' : ''}> arXiv
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
-                            <input type="checkbox" data-source="pubmed" ${this.filters.sources.pubmed ? 'checked' : ''}> PubMed
-                        </label>
+                        ${Array.from(this.filters.availableSources).map(src => `
+                            <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+                                <input type="checkbox" data-source="${escapeHTML(src)}" ${this.filters.sources[src] ? 'checked' : ''}> ${escapeHTML((src || 'unknown').replace('_', ' '))}
+                            </label>
+                        `).join('')}
                     </div>
                 </div>
             </div>
@@ -119,6 +143,7 @@ export class PaperList {
             grid.appendChild(createPaperCard(paper, this.onOpenSidebar));
         });
 
+        console.log('PaperList.render: cards added to grid');
         this.setupEventListeners();
     }
 

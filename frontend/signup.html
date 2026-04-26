@@ -96,6 +96,15 @@
     <script>
         document.getElementById('signup-form').addEventListener('submit', (e) => {
             e.preventDefault();
+            const email = e.target.querySelector('input[type="email"]').value;
+            const passwords = e.target.querySelectorAll('input[type="password"]');
+            if (passwords[0].value !== passwords[1].value) {
+                alert('Passwords do not match');
+                return;
+            }
+            localStorage.setItem('auth_email', email);
+            localStorage.setItem('auth_password', passwords[0].value);
+            alert('Account created! Please sign in.');
             window.location.href = 'login.html';
         });
     </script>
