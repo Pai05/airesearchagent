@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library | AI Research Agent</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .paper-row {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 1fr 200px 150px;
+            gap: 2rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .paper-row:hover {
+            background: rgba(255,255,255,0.02);
+            padding-left: 2rem;
+        }
+        .paper-title {
+            font-weight: 600;
+            color: var(--text-main);
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .paper-authors {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+        .paper-source {
+            font-size: 0.7rem;
+            color: var(--accent-cyan);
+            font-weight: 800;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .paper-year {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">RESEARCHLENS</div>
+                <div class="nav-links">
+                    <a href="index.html" class="nav-link">Discover</a>
+                    <a href="library.html" class="nav-link active">Library</a>
+                    <a href="analytics.html" class="nav-link">Analytics</a>
+                </div>
+                <div class="auth-btns">
+                    <span style="color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.5px;">RESEARCHER@UNIVERSITY.EDU</span>
+                    <a href="login.html" class="nav-link" style="font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">SIGN OUT</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 4rem;">
+        <div style="margin-bottom: 3rem;">
+            <div class="pill-badge" style="margin-bottom: 1rem;">COLLECTION • 15 PAPERS</div>
+            <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Personal Library</h1>
+            <p style="color: var(--text-muted);">A curated collection of your most referenced research papers and analyzed insights.</p>
+        </div>
+
+        <div style="background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 6rem;">
+            <div style="padding: 1rem 1.5rem; background: rgba(255,255,255,0.02); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 200px 150px; gap: 2rem; font-size: 0.65rem; font-weight: 800; color: var(--text-muted); letter-spacing: 1px;">
+                <span>PAPER TITLE & AUTHORS</span>
+                <span>SOURCE</span>
+                <span style="text-align: right;">YEAR</span>
+            </div>
+
+            <!-- Paper List -->
+            <a href="https://arxiv.org/abs/1706.03762" target="_blank" class="paper-row">
+                <div>
+                    <div class="paper-title">Attention Is All You Need</div>
+                    <div class="paper-authors">ASHISH VASWANI, NOAM SHAZEER ET AL.</div>
+                </div>
+                <div class="paper-source">
+                    <div style="width: 8px; height: 8px; background: #ff4742; border-radius: 50%;"></div>
+                    ARXIV
+                </div>
+                <div class="paper-year">2017</div>
+            </a>
+
+            <a href="https://arxiv.org/abs/1810.04805" target="_blank" class="paper-row">
+                <div>
+                    <div class="paper-title">BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</div>
+                    <div class="paper-authors">JACOB DEVLIN, MING-WEI CHANG ET AL.</div>
+                </div>
+                <div class="paper-source">
+                    <div style="width: 8px; height: 8px; background: #ff4742; border-radius: 50%;"></div>
+                    ARXIV
+                </div>
+                <div class="paper-year">2018</div>
+            </a>
+
+            <a href="https://arxiv.org/abs/2005.14165" target="_blank" class="paper-row">
+                <div>
+                    <div class="paper-title">Language Models are Few-Shot Learners</div>
+                    <div class="paper-authors">TOM B. BROWN, BENJAMIN MANN ET AL.</div>
+                </div>
+                <div class="paper-source">
+                    <div style="width: 8px; height: 8px; background: #ff4742; border-radius: 50%;"></div>
+                    ARXIV
+                </div>
+                <div class="paper-year">2020</div>
+            </a>
+
+            <a href="https://www.semanticscholar.org/paper/Deep-Residual-Learning-for-Image-Recognition-He-Zhang/5162409f53e6f6630f592f69324e930e46102a01" target="_blank" class="paper-row">
+                <div>
+                    <div class="paper-title">Deep Residual Learning for Image Recognition</div>
+                    <div class="paper-authors">KAIMING HE, XIANGYU ZHANG ET AL.</div>
+                </div>
+                <div class="paper-source">
+                    <div style="width: 8px; height: 8px; background: var(--accent-cyan); border-radius: 50%;"></div>
+                    SEMANTIC SCHOLAR
+                </div>
+                <div class="paper-year">2016</div>
+            </a>
+
+            <a href="https://arxiv.org/abs/1409.0473" target="_blank" class="paper-row">
+                <div>
+                    <div class="paper-title">Neural Machine Translation by Jointly Learning to Align and Translate</div>
+                    <div class="paper-authors">DZMITRY BAHDANAU, KYUNGHYUN CHO ET AL.</div>
+                </div>
+                <div class="paper-source">
+                    <div style="width: 8px; height: 8px; background: #ff4742; border-radius: 50%;"></div>
+                    ARXIV
+                </div>
+                <div class="paper-year">2014</div>
+            </a>
+
+            <a href="https://arxiv.org/abs/1512.03385" target="_blank" class="paper-row">
+                <div>
+                    <div class="paper-title">Deep Residual Learning for Image Recognition</div>
+                    <div class="paper-authors">KAIMING HE, XIANGYU ZHANG ET AL.</div>
+                </div>
+                <div class="paper-source">
+                    <div style="width: 8px; height: 8px; background: #ff4742; border-radius: 50%;"></div>
+                    ARXIV
+                </div>
+                <div class="paper-year">2015</div>
+            </a>
+
+            <a href="https://arxiv.org/abs/2103.00020" target="_blank" class="paper-row">
+                <div>
+                    <div class="paper-title">Learning Transferable Visual Models From Natural Language Supervision</div>
+                    <div class="paper-authors">ALEC RADFORD, JONG WOOK KIM ET AL.</div>
+                </div>
+                <div class="paper-source">
+                    <div style="width: 8px; height: 8px; background: #ff4742; border-radius: 50%;"></div>
+                    ARXIV
+                </div>
+                <div class="paper-year">2021</div>
+            </a>
+
+            <a href="https://arxiv.org/abs/2302.13971" target="_blank" class="paper-row">
+                <div>
+                    <div class="paper-title">LLaMA: Open and Efficient Foundation Language Models</div>
+                    <div class="paper-authors">HUGO TOUVRON, THIBAUT LAVRIL ET AL.</div>
+                </div>
+                <div class="paper-source">
+                    <div style="width: 8px; height: 8px; background: #ff4742; border-radius: 50%;"></div>
+                    ARXIV
+                </div>
+                <div class="paper-year">2023</div>
+            </a>
+
+            <a href="https://arxiv.org/abs/1907.11692" target="_blank" class="paper-row">
+                <div>
+                    <div class="paper-title">RoBERTa: A Robustly Optimized BERT Pretraining Approach</div>
+                    <div class="paper-authors">YINHAN LIU, MYLE OTT ET AL.</div>
+                </div>
+                <div class="paper-source">
+                    <div style="width: 8px; height: 8px; background: #ff4742; border-radius: 50%;"></div>
+                    ARXIV
+                </div>
+                <div class="paper-year">2019</div>
+            </a>
+
+            <a href="https://arxiv.org/abs/2010.11929" target="_blank" class="paper-row">
+                <div>
+                    <div class="paper-title">An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale</div>
+                    <div class="paper-authors">ALEXEY DOSOVITSKIY, LUCAS BEYER ET AL.</div>
+                </div>
+                <div class="paper-source">
+                    <div style="width: 8px; height: 8px; background: #ff4742; border-radius: 50%;"></div>
+                    ARXIV
+                </div>
+                <div class="paper-year">2020</div>
+            </a>
+        </div>
+    </main>
+
+    <footer style="border-top: 1px solid var(--border); padding: 4rem 0;">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem;">
+                <div>
+                    <div class="logo" style="font-size: 1.25rem; margin-bottom: 1rem;">ResearchLens</div>
+                    <p style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">RESEARCHLENS — POWERED BY SEMANTIC SCHOLAR, ARXIV & PUBMED.</p>
+                </div>
+                <div style="display: flex; gap: 3rem; font-size: 0.65rem; font-weight: 800; color: var(--text-muted); letter-spacing: 1px;">
+                    <a href="#" class="nav-link">PRIVACY POLICY</a>
+                    <a href="#" class="nav-link">TERMS OF SERVICE</a>
+                    <a href="#" class="nav-link">API DOCUMENTATION</a>
+                </div>
+            </div>
+            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">© 2024 RESEARCHLENS. ALL DATASETS SYNCED.</div>
+        </div>
+    </footer>
+</body>
+</html>

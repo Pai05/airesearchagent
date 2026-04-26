@@ -46,9 +46,10 @@ body {
 }
 
 .container {
-    max-width: 1400px;
+    max-width: 98%;
+    width: 98%;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 1.5rem;
 }
 
 /* Header & Nav */
@@ -294,9 +295,10 @@ input[type="text"]:focus {
 /* Layout Modules */
 .main-layout {
     display: grid;
-    grid-template-columns: 280px 1fr 380px;
-    gap: 2rem;
+    grid-template-columns: 280px 1fr 550px;
+    gap: 3rem;
     margin-top: 2rem;
+    align-items: start;
 }
 
 /* Filters Sidebar */
@@ -348,11 +350,12 @@ input[type="text"]:focus {
     background: var(--bg-panel);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    padding: 1.5rem;
-    height: calc(100vh - 8rem);
+    padding: 2rem;
+    height: calc(100vh - 10rem);
     position: sticky;
-    top: 6rem;
+    top: 7rem;
     overflow-y: auto;
+    box-shadow: var(--shadow);
 }
 
 /* Auth Pages Specific */
@@ -583,9 +586,8 @@ input[type="text"]:focus {
     background: rgba(0, 245, 255, 0.05);
 }
 
-.gap-bubble.active {
-    background: var(--accent-cyan);
-    color: #000;
-    border-color: var(--accent-cyan);
-    box-shadow: 0 0 15px rgba(0, 245, 255, 0.3);
+.gap-item.active {
+    background: rgba(0, 245, 255, 0.1) !important;
+    border-color: var(--accent-cyan) !important;
+    box-shadow: 0 0 15px rgba(0, 245, 255, 0.1);
 }
