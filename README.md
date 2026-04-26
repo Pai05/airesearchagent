@@ -14,7 +14,7 @@ Returns array of Paper objects (see shared/schema.py)
 ## Rules (everyone must follow)
 1. Never define your own paper shape — import Paper from shared/schema.py
 2. Never call the LLM with full PDF text — abstracts only
-3. Never fetch from any source except Semantic Scholar, arXiv, PubMed
+3. Never fetch from any source except Semantic Scholar and arXiv
 4. Always check the cache before calling the LLM (backend/cache.py)
 5. Every finding shown in the UI must carry a paper id — no orphan gaps
 

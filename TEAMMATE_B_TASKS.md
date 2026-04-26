@@ -61,10 +61,9 @@ RULE 9 — year must always be an integer — never None or a string
 If the API does not return a year extract it from published_date.
 published_date[:4] gives you the year as a string — convert with int().
 
-RULE 10 — source must always be exactly one of these three strings
+RULE 10 — source must always be exactly one of these two strings
 "semantic_scholar"
 "arxiv"
-"pubmed"
 Never use abbreviations, capitals, or any other value.
 
 ---

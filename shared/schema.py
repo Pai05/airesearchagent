@@ -9,7 +9,7 @@ class Paper:
     year: int
     published_date: str          # "YYYY-MM-DD"
     doi: Optional[str]
-    source: str                  # "semantic_scholar" | "arxiv" | "pubmed"
+    source: str                  # "semantic_scholar" | "arxiv"
     abstract: str
     pdf_url: Optional[str]       # None if paywalled or not found
     landing_url: str             # always present — DOI page or arXiv abs link

@@ -19,6 +19,11 @@ async def search(topic: str = "", limit: int = 50):
             status_code=400,
             detail="Topic cannot be empty"
         )
+    if limit < 1:
+        raise HTTPException(
+            status_code=400,
+            detail="Limit must be at least 1"
+        )
     try:
         papers = fetch_all(topic)
         papers = extract_findings(papers, topic=topic)
