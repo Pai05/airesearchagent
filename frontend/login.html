@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | AI Research Agent</title>
+    <link rel="stylesheet" href="src/styles/main.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Hide Spline watermark only */
+        .auth-visual a[href*="spline.design"] {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-visual" style="background: #000000; color: #e6edf3; overflow: hidden;">
+            <div id="spline-loader" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 5;">
+                <div class="spinner" style="border-top-color: #00f5ff;"></div>
+            </div>
+            <canvas id="canvas3d" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1; opacity: 0; transition: opacity 0.8s ease;"></canvas>
+
+            <div class="logo" style="position: relative; z-index: 10; color: var(--accent-cyan);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 4.93 5.66 5.66"/><path d="M2 12h8"/><path d="m4.93 19.07 5.66-5.66"/><path d="M12 22v-8"/><path d="m19.07 19.07-5.66-5.66"/><path d="M22 12h-8"/><path d="m19.07 4.93-5.66 5.66"/></svg>
+                AI Research Agent
+            </div>
+            <div style="margin-top: auto; position: relative; z-index: 10;">
+                <h2 style="font-size: 2.5rem; line-height: 1.1; margin-bottom: 1rem; color: #e6edf3; font-weight: 800;">Advancing the Frontiers of Synthetic Discovery</h2>
+                <p style="color: rgba(230, 237, 243, 0.6); font-weight: 500;">Welcome back. Our neural assistant is ready.</p>
+            </div>
+
+            <script type="module">
+                import { Application } from 'https://esm.sh/@splinetool/runtime';
+                
+                const canvas = document.getElementById('canvas3d');
+                const loader = document.getElementById('spline-loader');
+                const spline = new Application(canvas);
+                
+                spline.load('https://prod.spline.design/zcgiPBynhH0NZq7p/scene.splinecode')
+                    .then(() => {
+                        loader.style.display = 'none';
+                        canvas.style.opacity = '1';
+                        console.log('✅ 3D Robot loaded successfully');
+
+                        // Remove only the Spline watermark logo element
+                        function removeWatermark() {
+                            const visual = document.querySelector('.auth-visual');
+                            visual.querySelectorAll('a[href*="spline.design"]').forEach(el => el.remove());
+                            visual.querySelectorAll(':scope > div').forEach(el => {
+                                if (el.querySelector('a[href*="spline"]')) {
+                                    el.remove();
+                                }
+                            });
+                        }
+                        setTimeout(removeWatermark, 300);
+                        setTimeout(removeWatermark, 1000);
+                        setTimeout(removeWatermark, 2000);
+                    })
+                    .catch((err) => {
+                        console.error('❌ Spline scene failed to load:', err);
+                        loader.innerHTML = '<p style="color: #ff6b6b; font-size: 0.875rem; text-align: center;">3D scene failed to load.<br>Check your internet connection.</p>';
+                    });
+            </script>
+        </div>
+        <div class="auth-form-container">
+            <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">Initialize Session</h3>
+            <p style="color: var(--text-muted); margin-bottom: 2.5rem;">Access the core intelligence matrix.</p>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" class="form-control" placeholder="name@aether.ai" required>
+                </div>
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between;">
+                        <label>Password</label>
+                        <a href="#" style="font-size: 0.75rem; color: var(--accent-cyan); text-decoration: none; font-weight: 700;">FORGOT KEY?</a>
+                    </div>
+                    <input type="password" class="form-control" placeholder="••••••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-primary" style="width: 100%; padding: 1rem; margin-top: 1rem;">
+                    Get Access Now &rarr;
+                </button>
+            </form>
+            
+            <div class="auth-footer">
+                New here? <a href="signup.html">Create an Account</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
