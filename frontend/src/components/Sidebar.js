@@ -226,16 +226,21 @@ export class Sidebar {
                             </p>
                         `;
                     } else {
+                        const paperUrl = found.landing_url || found.pdf_url || '#';
                         infoBox.innerHTML = `
-                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                                <h3 style="color: var(--accent-cyan); font-size: 1.1rem; flex: 1;">${found.fullTitle}</h3>
-                                <span style="background: rgba(0, 245, 255, 0.1); color: var(--accent-cyan); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.7rem; font-weight: 800;">PAPER SOURCE</span>
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; gap: 1rem;">
+                                <h3 style="color: var(--accent-cyan); font-size: 1.1rem; flex: 1; line-height: 1.4;">${found.fullTitle}</h3>
+                                <a href="${escapeHTML(paperUrl)}" target="_blank" rel="noopener noreferrer"
+                                   style="background: rgba(0, 245, 255, 0.1); color: var(--accent-cyan); padding: 0.3rem 0.8rem; border-radius: 4px; font-size: 0.7rem; font-weight: 800; text-decoration: none; border: 1px solid var(--accent-cyan); white-space: nowrap; flex-shrink: 0; transition: background 0.2s;"
+                                   onmouseover="this.style.background='rgba(0,245,255,0.25)'"
+                                   onmouseout="this.style.background='rgba(0,245,255,0.1)'"
+                                >↗ OPEN PAPER</a>
                             </div>
                             <div style="margin-bottom: 1rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                                ${found.tags.map(t => `<span style="font-size: 0.65rem; color: var(--text-muted); border: 1px solid var(--border); padding: 0.2rem 0.5rem; border-radius: 4px;">${t.toUpperCase()}</span>`).join('')}
+                                ${found.tags.map(t => `<span style="font-size: 0.65rem; color: var(--text-muted); border: 1px solid var(--border); padding: 0.2rem 0.5rem; border-radius: 4px;">${escapeHTML(t.toUpperCase())}</span>`).join('')}
                             </div>
                             <p style="color: var(--text-main); font-size: 0.85rem; line-height: 1.5;">
-                                This node identifies a critical contribution to <strong>${topic}</strong> research. Connectivity to adjacent papers indicates shared methodology or significant cross-citation in the field of ${found.tags.slice(0,2).join(' and ')}.
+                                This node identifies a critical contribution to <strong>${escapeHTML(topic)}</strong> research. Connectivity to adjacent papers indicates shared methodology or significant cross-citation in the field of ${found.tags.slice(0,2).map(t => escapeHTML(t)).join(' and ')}.
                             </p>
                         `;
                     }
@@ -287,6 +292,8 @@ export class Sidebar {
                 label: (p.title || `Paper ${i+1}`).substring(0, isLarge ? 30 : 15) + '...',
                 fullTitle: p.title,
                 tags: p.field_tags || [],
+                landing_url: p.landing_url || null,
+                pdf_url: p.pdf_url || null,
                 type: 'paper'
             });
         });
@@ -383,7 +390,13 @@ export class Sidebar {
         if (paper.pdf_url) {
             pdfSection = `
                 <div style="margin-top: 2rem;">
-                    <p style="font-size: 0.7rem; color: var(--accent-cyan); font-style: italic; margin-bottom: 0.75rem;">Reading the paper directly confirms findings are not hallucinated.</p>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <p style="font-size: 0.7rem; color: var(--accent-cyan); font-style: italic; margin: 0;">Reading the paper directly confirms findings are not hallucinated.</p>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="${escapeHTML(paper.pdf_url)}" target="_blank" rel="noopener noreferrer" style="font-size: 0.75rem; color: var(--accent-cyan); font-weight: 800; text-decoration: none; padding: 0.3rem 0.6rem; border: 1px solid var(--accent-cyan); border-radius: 4px; transition: all 0.2s;">↗ OPEN FULL PDF</a>
+                            <button id="force-download-pdf" data-url="${escapeHTML(paper.pdf_url)}" style="font-size: 0.75rem; background: var(--accent-cyan); color: var(--bg-panel); font-weight: 800; border: none; padding: 0.3rem 0.6rem; border-radius: 4px; cursor: pointer; transition: all 0.2s;">DOWNLOAD PDF</button>
+                        </div>
+                    </div>
                     <iframe src="${escapeHTML(paper.pdf_url)}" style="width: 100%; height: 400px; border: 1px solid var(--border); border-radius: var(--radius);"></iframe>
                 </div>
             `;
@@ -437,5 +450,35 @@ export class Sidebar {
         this.container.querySelector('#back-to-global').addEventListener('click', () => {
             window.dispatchEvent(new CustomEvent('show-global-analysis'));
         });
+
+        const forceBtn = this.container.querySelector('#force-download-pdf');
+        if (forceBtn) {
+            forceBtn.addEventListener('click', async (e) => {
+                const url = e.target.getAttribute('data-url');
+                const btn = e.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'DOWNLOADING...';
+                try {
+                    // Try fetching as blob to force native browser save dialog
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    const blob = await response.blob();
+                    const objectUrl = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = objectUrl;
+                    // Force the filename to end in .pdf
+                    a.download = `${(paper.title || 'paper').substring(0, 30).replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(objectUrl);
+                    btn.textContent = 'DOWNLOADED ✓';
+                } catch (err) {
+                    console.error('Download fetch failed, likely CORS', err);
+                    btn.textContent = 'FAILED (TRY ↗ OPEN)';
+                }
+                setTimeout(() => { if (btn.textContent !== 'DOWNLOADED ✓') btn.textContent = originalText; }, 3000);
+            });
+        }
     }
 }

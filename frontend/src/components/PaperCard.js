@@ -61,11 +61,52 @@ export function createPaperCard(paper, onOpenSidebar) {
                 </div>
             </div>
         </div>
-
-        <button class="btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 0.5rem; font-size: 0.8rem; background: transparent; border: 1px solid var(--border); color: var(--text-main);">View paper</button>
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button class="view-btn" style="flex: 1; padding: 0.5rem; font-size: 0.8rem; background: transparent; border: 1px solid var(--border); color: var(--text-main); cursor: pointer;">View paper</button>
+            <button class="save-btn" style="flex: 1; padding: 0.5rem; font-size: 0.8rem; background: rgba(0, 245, 255, 0.1); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); cursor: pointer; transition: all 0.2s;">Save to Library</button>
+        </div>
     `;
 
-    card.querySelector('button').addEventListener('click', (e) => {
+    // Setup 'Save to Library' logic
+    const saveBtn = card.querySelector('.save-btn');
+    
+    // Check if already saved
+    let initialSaved = JSON.parse(localStorage.getItem('saved_papers') || '[]');
+    if (initialSaved.some(p => p.id === paper.id)) {
+        saveBtn.textContent = 'Saved ✓';
+        saveBtn.style.background = 'transparent';
+    }
+
+    saveBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        
+        let savedPapers = JSON.parse(localStorage.getItem('saved_papers') || '[]');
+        const isSaved = savedPapers.some(p => p.id === paper.id);
+
+        if (isSaved) {
+            // Unsave
+            savedPapers = savedPapers.filter(p => p.id !== paper.id);
+            saveBtn.textContent = 'Save to Library';
+            saveBtn.style.background = 'rgba(0, 245, 255, 0.1)';
+        } else {
+            // Save
+            savedPapers.unshift({
+                id: paper.id,
+                title: paper.title,
+                authors: paper.authors,
+                source: paper.source,
+                year: paper.year,
+                url: paper.landing_url || paper.pdf_url || paper.url || '#'
+            });
+            savedPapers = savedPapers.slice(0, 50); // keep last 50
+            saveBtn.textContent = 'Saved ✓';
+            saveBtn.style.background = 'transparent';
+        }
+        
+        localStorage.setItem('saved_papers', JSON.stringify(savedPapers));
+    });
+
+    card.querySelector('.view-btn').addEventListener('click', (e) => {
         e.stopPropagation();
         onOpenSidebar(paper);
     });

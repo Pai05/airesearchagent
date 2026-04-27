@@ -8,22 +8,26 @@ from backend.config import GROQ_API_KEY, GROQ_BASE_URL, GROQ_MODEL
 from pipeline.extractor_mock import extract_findings_mock
 
 
-def _normalize_extraction(payload: dict) -> tuple[list[str], list[str]]:
+def _normalize_extraction(payload: dict) -> tuple[list[str], list[str], list[str]]:
     findings = payload.get("findings", []) if isinstance(payload, dict) else []
     gaps = payload.get("gaps", []) if isinstance(payload, dict) else []
+    field_tags = payload.get("field_tags", []) if isinstance(payload, dict) else []
 
     if not isinstance(findings, list):
         findings = []
     if not isinstance(gaps, list):
         gaps = []
+    if not isinstance(field_tags, list):
+        field_tags = []
 
     findings = [str(item).strip() for item in findings if str(item).strip()]
     gaps = [str(item).strip() for item in gaps if str(item).strip()]
+    field_tags = [str(item).strip() for item in field_tags if str(item).strip()]
 
-    return findings[:3], gaps[:2]
+    return findings[:3], gaps[:2], field_tags[:3]
 
 
-def _parse_groq_response(content: str) -> tuple[list[str], list[str]]:
+def _parse_groq_response(content: str) -> tuple[list[str], list[str], list[str]]:
     try:
         return _normalize_extraction(json.loads(content))
     except json.JSONDecodeError:
@@ -31,24 +35,24 @@ def _parse_groq_response(content: str) -> tuple[list[str], list[str]]:
 
     match = re.search(r"\{[\s\S]*\}", content)
     if not match:
-        return [], []
+        return [], [], []
 
     try:
         return _normalize_extraction(json.loads(match.group(0)))
     except json.JSONDecodeError:
-        return [], []
+        return [], [], []
 
 
-def _extract_findings_groq(abstract: str) -> tuple[list[str], list[str]]:
+def _extract_findings_groq(abstract: str) -> tuple[list[str], list[str], list[str]]:
     headers = {
         "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json",
     }
 
     prompt = (
-        "Extract exactly 3 key findings and exactly 2 research gaps from the abstract. "
-        "Return ONLY valid JSON with keys findings and gaps. "
-        "Format: {\"findings\": [\"...\", \"...\", \"...\"], \"gaps\": [\"...\", \"...\"]}.\n\n"
+        "Extract exactly 3 key findings, exactly 2 research gaps, and up to 3 short field tags (topics/categories) from the abstract. "
+        "Return ONLY valid JSON with keys findings, gaps, and field_tags. "
+        "Format: {\"findings\": [\"...\", \"...\", \"...\"], \"gaps\": [\"...\", \"...\"], \"field_tags\": [\"...\", \"...\", \"...\"]}.\n\n"
         f"Abstract:\n{abstract[:4000]}"
     )
 
@@ -78,10 +82,10 @@ def _extract_findings_groq(abstract: str) -> tuple[list[str], list[str]]:
 
     data = response.json()
     content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
-    findings, gaps = _parse_groq_response(content)
+    findings, gaps, field_tags = _parse_groq_response(content)
 
     if findings and gaps:
-        return findings, gaps
+        return findings, gaps, field_tags
 
     raise ValueError("Groq response did not contain valid findings/gaps JSON")
 
@@ -115,16 +119,17 @@ def extract_findings(papers: list[dict], topic: str = "") -> list[dict]:
             pid = p["id"]
             abstract = p.get("abstract", "")
 
+            field_tags = []
             if use_groq:
                 try:
-                    findings, gaps = _extract_findings_groq(abstract)
+                    findings, gaps, field_tags = _extract_findings_groq(abstract)
                 except Exception as e:
                     print(f"Groq extraction failed for {pid}: {e}. Falling back to mock.")
                     findings, gaps = extract_findings_mock(abstract)
             else:
                 findings, gaps = extract_findings_mock(abstract)
 
-            extracted = {"findings": findings, "gaps": gaps}
+            extracted = {"findings": findings, "gaps": gaps, "field_tags": field_tags}
 
             save_to_cache(pid, topic, extracted)
             cached_map[pid] = extracted
@@ -133,8 +138,12 @@ def extract_findings(papers: list[dict], topic: str = "") -> list[dict]:
 
     for p in papers:
         pid = p.get("id", "")
-        result = cached_map.get(pid, {"findings": [], "gaps": []})
+        result = cached_map.get(pid, {"findings": [], "gaps": [], "field_tags": []})
         p["findings"] = result.get("findings", [])
         p["gaps"] = result.get("gaps", [])
+        # Merge existing field tags with AI generated ones
+        existing_tags = p.get("field_tags", [])
+        new_tags = result.get("field_tags", [])
+        p["field_tags"] = list(set(existing_tags + new_tags))
 
     return papers

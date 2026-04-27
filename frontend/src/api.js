@@ -1,8 +1,9 @@
 const BASE_URL = "http://localhost:8000";
 
-export async function searchPapers(topic, limit = 50) {
+export async function searchPapers(topic, limit = 50, sources = []) {
   try {
-    const url = `${BASE_URL}/api/search?topic=${encodeURIComponent(topic)}&limit=${limit}`;
+    const sourcesParam = sources.length > 0 ? `&sources=${sources.join(',')}` : '';
+    const url = `${BASE_URL}/api/search?topic=${encodeURIComponent(topic)}&limit=${limit}${sourcesParam}`;
     console.log('Fetching from URL:', url);
     const response = await fetch(url);
     console.log('Fetch response status:', response.status);
