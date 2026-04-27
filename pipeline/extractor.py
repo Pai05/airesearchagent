@@ -4,7 +4,7 @@ import re
 import requests
 
 from backend.cache import get_cached, save_to_cache
-from backend.config import GROQ_API_KEY, GROQ_BASE_URL, GROQ_MODEL
+from backend.config import GEMINI_API_KEY, GEMINI_MODEL
 from pipeline.extractor_mock import extract_findings_mock
 
 
@@ -43,9 +43,8 @@ def _parse_groq_response(content: str) -> tuple[list[str], list[str], list[str]]
         return [], [], []
 
 
-def _extract_findings_groq(abstract: str) -> tuple[list[str], list[str], list[str]]:
+def _extract_findings_gemini(abstract: str) -> tuple[list[str], list[str], list[str]]:
     headers = {
-        "Authorization": f"Bearer {GROQ_API_KEY}",
         "Content-Type": "application/json",
     }
 
@@ -57,43 +56,42 @@ def _extract_findings_groq(abstract: str) -> tuple[list[str], list[str], list[st
     )
 
     payload = {
-        "model": GROQ_MODEL,
-        "temperature": 0,
-        "max_tokens": 300,
-        "messages": [
+        "contents": [
             {
-                "role": "system",
-                "content": "You are a precise research assistant that returns strict JSON only.",
-            },
-            {
-                "role": "user",
-                "content": prompt,
-            },
+                "parts": [{"text": prompt}]
+            }
         ],
+        "systemInstruction": {
+            "parts": [{"text": "You are a precise research assistant that returns strict JSON only. Do not wrap in markdown tags like ```json."}]
+        },
+        "generationConfig": {
+            "temperature": 0,
+            "maxOutputTokens": 300,
+            "responseMimeType": "application/json"
+        }
     }
 
-    response = requests.post(
-        f"{GROQ_BASE_URL}/chat/completions",
-        headers=headers,
-        json=payload,
-        timeout=20,
-    )
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
+    response = requests.post(url, headers=headers, json=payload, timeout=20)
     response.raise_for_status()
 
     data = response.json()
-    content = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+    content = ""
+    if data.get("candidates"):
+        content = data["candidates"][0].get("content", {}).get("parts", [{}])[0].get("text", "")
+        
     findings, gaps, field_tags = _parse_groq_response(content)
 
     if findings and gaps:
         return findings, gaps, field_tags
 
-    raise ValueError("Groq response did not contain valid findings/gaps JSON")
+    raise ValueError("Gemini response did not contain valid findings/gaps JSON")
 
 def extract_findings(papers: list[dict], topic: str = "") -> list[dict]:
-    """Extract findings and gaps using Groq when configured, else local mock extractor."""
+    """Extract findings and gaps using Gemini when configured, else local mock extractor."""
     to_process = []
     cached_map = {}
-    use_groq = bool(GROQ_API_KEY)
+    use_gemini = bool(GEMINI_API_KEY)
 
     for p in papers:
         if not p.get("id"):
@@ -110,8 +108,8 @@ def extract_findings(papers: list[dict], topic: str = "") -> list[dict]:
     print(f"Needs extraction: {len(to_process)}")
 
     if to_process:
-        if use_groq:
-            print(f"Extracting findings from abstracts (Groq: {GROQ_MODEL})...")
+        if use_gemini:
+            print(f"Extracting findings from abstracts (Gemini: {GEMINI_MODEL})...")
         else:
             print("Extracting findings from abstracts (mock)...")
 
@@ -120,11 +118,11 @@ def extract_findings(papers: list[dict], topic: str = "") -> list[dict]:
             abstract = p.get("abstract", "")
 
             field_tags = []
-            if use_groq:
+            if use_gemini:
                 try:
-                    findings, gaps, field_tags = _extract_findings_groq(abstract)
+                    findings, gaps, field_tags = _extract_findings_gemini(abstract)
                 except Exception as e:
-                    print(f"Groq extraction failed for {pid}: {e}. Falling back to mock.")
+                    print(f"Gemini extraction failed for {pid}: {e}. Falling back to mock.")
                     findings, gaps = extract_findings_mock(abstract)
             else:
                 findings, gaps = extract_findings_mock(abstract)

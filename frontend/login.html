@@ -91,19 +91,31 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('login-form').addEventListener('submit', (e) => {
+    <script type="module">
+        import { login, loginWithGoogle } from './src/auth.js';
+
+        const form = document.getElementById('login-form');
+        
+        // Add Google Sign-in button dynamically or just keep it in mind
+        // For now, let's just make the email/password work with Firebase
+        
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = e.target.querySelector('input[type="email"]').value;
             const password = e.target.querySelector('input[type="password"]').value;
-            const storedEmail = localStorage.getItem('auth_email');
-            const storedPassword = localStorage.getItem('auth_password');
+            const submitBtn = e.target.querySelector('button');
             
-            if (email === storedEmail && password === storedPassword) {
-                localStorage.setItem('auth_token', 'mock_token_123');
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Authenticating...';
+                
+                await login(email, password);
                 window.location.href = 'index.html';
-            } else {
-                alert('Invalid email or password. Hint: Make sure you created an account.');
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Login failed: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Get Access Now →';
             }
         });
     </script>

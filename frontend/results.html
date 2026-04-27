@@ -25,12 +25,33 @@
                 </div>
 
                 <div class="auth-btns">
-                    <span style="color: var(--text-muted); font-size: 0.75rem; letter-spacing: 0.5px;">RESEARCHER@UNIVERSITY.EDU</span>
-                    <a href="login.html" class="nav-link" style="font-size: 0.75rem; font-weight: 800; letter-spacing: 1px;">SIGN OUT</a>
+                    <span id="user-email" style="color:var(--text-muted);font-size:0.75rem;letter-spacing:0.5px;text-transform:uppercase;">GUEST</span>
+                    <a href="#" id="sign-out-link" class="nav-link" style="font-size:0.75rem;font-weight:800;letter-spacing:1px;">SIGN OUT</a>
                 </div>
             </nav>
         </div>
     </header>
+
+    <script type="module">
+        import { auth, logout } from './src/auth.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const userEmailEl = document.getElementById('user-email');
+        const signOutLink = document.getElementById('sign-out-link');
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userEmailEl.textContent = user.email;
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        signOutLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            logout();
+        });
+    </script>
 
     <main class="container">
         <!-- Results Search Bar (compact, at top) -->
