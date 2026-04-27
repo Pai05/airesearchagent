@@ -3,11 +3,12 @@ import xmltodict
 from backend.config import ARXIV_BASE, RESULTS_PER_SOURCE
 
 def fetch_arxiv(topic: str) -> list[dict]:
+    # Use quoted phrase search in title AND abstract for precision
+    quoted = f'"{topic}"'
     params = {
-        "search_query": f"all:{topic}",
-        "sortBy": "submittedDate",
-        "sortOrder": "descending",
-        "max_results": RESULTS_PER_SOURCE
+        "search_query": f"ti:{quoted} OR abs:{quoted}",
+        "max_results": RESULTS_PER_SOURCE,
+        "sortBy": "relevance"
     }
     try:
         r = requests.get(ARXIV_BASE, params=params, timeout=15)

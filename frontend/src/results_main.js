@@ -33,7 +33,7 @@ const paperList = new PaperList(
 console.log('Components initialized');
 
 // Search Function
-async function handleSearch(query) {
+async function handleSearch(query, sourcesOverride = null) {
     const q = query || (searchInput && searchInput.value.trim());
     if (!q) return;
 
@@ -43,6 +43,19 @@ async function handleSearch(query) {
     const url = new URL(window.location);
     url.searchParams.set('topic', q);
     window.history.replaceState({}, '', url);
+
+    // Read sources from URL or override
+    const urlParams = new URLSearchParams(window.location.search);
+    const sourcesParam = sourcesOverride || urlParams.get('sources') || '';
+    const selectedSources = sourcesParam ? sourcesParam.split(',').filter(Boolean) : [];
+
+    // Save search topic to history
+    let savedSearches = JSON.parse(localStorage.getItem('saved_searches') || '[]');
+    // Remove if exists to move it to the front
+    savedSearches = savedSearches.filter(s => s !== q);
+    savedSearches.unshift(q);
+    savedSearches = savedSearches.slice(0, 10); // keep last 10
+    localStorage.setItem('saved_searches', JSON.stringify(savedSearches));
 
     if (topicLabel) topicLabel.textContent = q.toUpperCase();
     if (searchInput) searchInput.value = q;
@@ -54,7 +67,7 @@ async function handleSearch(query) {
     if (searchButton) searchButton.disabled = true;
 
     try {
-        const result = await searchPapers(q);
+        const result = await searchPapers(q, 50, selectedSources);
         const papers = result.papers;
         allPapers = papers;
 
@@ -80,7 +93,8 @@ function init() {
     console.log('Init called');
     const urlParams = new URLSearchParams(window.location.search);
     const topic = urlParams.get('topic') || 'machine learning';
-    handleSearch(topic);
+    const sources = urlParams.get('sources') || '';
+    handleSearch(topic, sources);
 }
 
 if (document.readyState === 'loading') {
