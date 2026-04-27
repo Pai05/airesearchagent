@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Discover | AI Research Agent</title>
-    <meta name="description" content="Search across 50+ million research papers. Fetch, analyze, and extract key findings from Semantic Scholar and arXiv.">
+    <meta name="description" content="Search across 50+ million research papers. Fetch, analyze, and extract key findings from Semantic Scholar, arXiv, and PubMed.">
     <link rel="stylesheet" href="src/styles/main.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -42,7 +42,7 @@
             <!-- Heading -->
             <p style="color:var(--text-muted);font-size:1rem;margin-bottom:0.5rem;">Search across 50+ million papers on any topic</p>
             <p style="color:var(--text-muted);font-size:0.85rem;max-width:580px;margin:0 auto 2.5rem;line-height:1.6;">
-                Enter a research topic and we'll fetch, analyse, and extract key findings and gaps from papers across Semantic Scholar and arXiv.
+                Enter a research topic and we'll fetch, analyse, and extract key findings and gaps from papers across Semantic Scholar, arXiv, and PubMed.
             </p>
 
             <!-- ======= SEARCH BAR ======= -->
@@ -54,6 +54,19 @@
                     </div>
                     <input type="text" id="search-input" placeholder="e.g. attention mechanisms in transformer models...">
                     <button id="search-button" class="search-btn-cyan">SEARCH</button>
+                </div>
+
+                <!-- Source Selection -->
+                <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1.5rem; font-size: 0.75rem; color: var(--text-muted);">
+                    <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                        <input type="checkbox" id="check-ss" checked style="accent-color: var(--accent-cyan);"> SEMANTIC SCHOLAR
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                        <input type="checkbox" id="check-arxiv" checked style="accent-color: var(--accent-cyan);"> ARXIV
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer;">
+                        <input type="checkbox" id="check-pubmed" checked style="accent-color: var(--accent-cyan);"> PUBMED
+                    </label>
                 </div>
 
                 <!-- Fetching state: text input + CANCEL button + spinner bar (hidden by default) -->
@@ -70,13 +83,6 @@
                     <div class="loading-spinner-small"></div>
                     <span>Fetching papers... this may take 20–30 seconds</span>
                 </div>
-            </div>
-
-            <!-- Source tags -->
-            <div style="margin-top:1.5rem;display:flex;justify-content:center;gap:1rem;align-items:center;font-size:0.65rem;color:var(--text-muted);font-weight:800;">
-                SOURCES:
-                <span class="source-tag">SEMANTIC SCHOLAR</span>
-                <span class="source-tag">ARXIV</span>
             </div>
         </section>
 
@@ -140,7 +146,7 @@
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2rem;">
                 <div>
                     <div class="logo" style="font-size:1.25rem;margin-bottom:1rem;">ResearchLens</div>
-                    <p style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">RESEARCHLENS — POWERED BY SEMANTIC SCHOLAR &amp; ARXIV.</p>
+                    <p style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;">RESEARCHLENS — POWERED BY SEMANTIC SCHOLAR, ARXIV &amp; PUBMED.</p>
                 </div>
                 <div style="display:flex;gap:3rem;font-size:0.65rem;font-weight:800;color:var(--text-muted);letter-spacing:1px;">
                     <a href="#" class="nav-link">PRIVACY POLICY</a>
@@ -162,6 +168,7 @@
         const searchBarFetching = document.getElementById('search-bar-fetching');
         const fetchingQueryDisplay = document.getElementById('fetching-query-display');
 
+        // Navigate to results page with topic
         function goToResults(topic) {
             window.location.href = 'results.html?topic=' + encodeURIComponent(topic);
         }
@@ -175,6 +182,16 @@
                 return;
             }
 
+            const sources = [];
+            if (document.getElementById('check-ss').checked) sources.push('semantic_scholar');
+            if (document.getElementById('check-arxiv').checked) sources.push('arxiv');
+            if (document.getElementById('check-pubmed').checked) sources.push('pubmed');
+
+            if (sources.length === 0) {
+                alert('Please select at least one source.');
+                return;
+            }
+
             // Switch to "fetching" UI
             fetchingQueryDisplay.textContent = query;
             searchBarNormal.classList.add('hidden');
@@ -182,7 +199,9 @@
             fetchingBar.classList.remove('hidden');
 
             // Redirect after short delay so user sees the fetching state
-            setTimeout(() => goToResults(query), 1200);
+            setTimeout(() => {
+                window.location.href = `results.html?topic=${encodeURIComponent(query)}&sources=${sources.join(',')}`;
+            }, 1200);
         }
 
         searchButton.addEventListener('click', handleSearch);

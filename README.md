@@ -35,3 +35,6 @@ Returns array of Paper objects (see shared/schema.py)
 1. Add `GROQ_API_KEY=your_key` to `.env`
 2. Optional: add `GROQ_MODEL=llama-3.1-8b-instant`
 3. Run backend normally. If Groq fails or key is missing, extractor falls back to local mock mode.
+
+## Contributors
+- **Vivek** - Frontend integrations, robust PDF extraction, and Library features.

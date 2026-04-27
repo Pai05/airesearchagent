@@ -18,7 +18,6 @@ def fetch_semantic_scholar(topic: str) -> list[dict]:
     params = {
         "query": topic,
         "limit": RESULTS_PER_SOURCE,
-        "sort": "publicationDate",
         "fields": FIELDS
     }
     try:
