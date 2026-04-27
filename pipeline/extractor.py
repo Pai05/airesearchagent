@@ -27,7 +27,7 @@ def _normalize_extraction(payload: dict) -> tuple[list[str], list[str], list[str
     return findings[:3], gaps[:2], field_tags[:3]
 
 
-def _parse_groq_response(content: str) -> tuple[list[str], list[str], list[str]]:
+def _parse_gemini_response(content: str) -> tuple[list[str], list[str], list[str]]:
     try:
         return _normalize_extraction(json.loads(content))
     except json.JSONDecodeError:
@@ -80,7 +80,7 @@ def _extract_findings_gemini(abstract: str) -> tuple[list[str], list[str], list[
     if data.get("candidates"):
         content = data["candidates"][0].get("content", {}).get("parts", [{}])[0].get("text", "")
         
-    findings, gaps, field_tags = _parse_groq_response(content)
+    findings, gaps, field_tags = _parse_gemini_response(content)
 
     if findings and gaps:
         return findings, gaps, field_tags

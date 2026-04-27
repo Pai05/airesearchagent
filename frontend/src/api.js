@@ -12,7 +12,7 @@ export async function searchPapers(topic, limit = 50, sources = []) {
       }
     });
     console.log('Fetch response status:', response.status);
-    if (!response.ok) {
+      if (!response.ok) {
       let message = "could not reach backend. Make sure the server is running at localhost:8000";
       try {
         const errorPayload = await response.json();

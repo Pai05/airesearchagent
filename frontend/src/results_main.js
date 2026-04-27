@@ -1,4 +1,4 @@
-import { searchPapers } from './api.js?v=2';
+import { searchPapers } from './api.js?v=3';
 import { PaperList } from './components/PaperList.js?v=2';
 import { Sidebar } from './components/Sidebar.js?v=2';
 import { GapGraph } from './components/GapGraph.js?v=2';
@@ -81,7 +81,8 @@ async function handleSearch(query, sourcesOverride = null) {
 
     } catch (error) {
         console.error('Search failed:', error);
-        if (fetchingStatus) fetchingStatus.textContent = 'Error: could not reach backend. Make sure the server is running at localhost:8000';
+        const msg = (error && error.message) ? error.message : 'Search failed.';
+        if (fetchingStatus) fetchingStatus.textContent = `Error: ${msg}`;
     } finally {
         if (fetchingBar) fetchingBar.classList.add('hidden');
         if (searchButton) searchButton.disabled = false;
