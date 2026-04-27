@@ -5,7 +5,12 @@ export async function searchPapers(topic, limit = 50, sources = []) {
     const sourcesParam = sources.length > 0 ? `&sources=${sources.join(',')}` : '';
     const url = `${BASE_URL}/api/search?topic=${encodeURIComponent(topic)}&limit=${limit}${sourcesParam}`;
     console.log('Fetching from URL:', url);
-    const response = await fetch(url);
+    const token = localStorage.getItem('auth_token');
+    const response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
     console.log('Fetch response status:', response.status);
     if (!response.ok) {
       let message = "could not reach backend. Make sure the server is running at localhost:8000";

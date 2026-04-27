@@ -13,3 +13,4 @@ cache.db
 .env
 .idea/
 .vscode/
+serviceAccountKey.json
