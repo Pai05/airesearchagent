@@ -3,13 +3,20 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+from typing import Optional, List, Annotated
+from fastapi import Depends
 import os
 from pipeline.fetcher import fetch_all
 from pipeline.extractor import extract_findings
-from typing import Optional, List, Annotated
-from fastapi import Depends
 from backend.auth import get_current_user
 from backend.cache import init_db  # Ensure database is initialized on startup
+
+# Response models
+class SearchResponse(BaseModel):
+    topic: str
+    total: int
+    papers: list[dict]
 
 app = FastAPI()
 
@@ -66,13 +73,13 @@ async def get_config():
 async def health_check():
     return {"status": "ok"}
 
-@app.get("/api/search")
+@app.get("/api/search", response_model=SearchResponse)
 async def search(
     topic: str = "",
     limit: int = 50,
     sources: Optional[str] = Query(default=None),
     user: dict = Depends(get_current_user)
-):
+) -> SearchResponse:
     if not topic.strip():
         raise HTTPException(status_code=400, detail="Topic cannot be empty")
     if limit < 1:
@@ -82,13 +89,31 @@ async def search(
     allowed_sources = None
     if sources:
         allowed_sources = [s.strip() for s in sources.split(',') if s.strip()]
+    
     try:
         papers = fetch_all(topic, allowed_sources=allowed_sources)
         papers = extract_findings(papers, topic=topic)
         final = papers[:limit]
-        return {"topic": topic, "total": len(final), "papers": final}
+        
+        # Ensure all papers are dicts (not dataclass instances)
+        papers_data = []
+        for p in final:
+            if isinstance(p, dict):
+                papers_data.append(p)
+            else:
+                # If it's a dataclass, convert to dict
+                papers_data.append(vars(p) if hasattr(p, '__dict__') else p)
+        
+        return SearchResponse(
+            topic=topic,
+            total=len(papers_data),
+            papers=papers_data
+        )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        import traceback
+        print(f"Error in search endpoint: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
 
 
 frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
