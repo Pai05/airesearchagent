@@ -1,4 +1,5 @@
 from pathlib import Path
+import traceback
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
@@ -20,8 +21,21 @@ class SearchResponse(BaseModel):
 
 app = FastAPI()
 
-# Initialize database on startup
-init_db()
+# Initialize database on startup event
+@app.on_event("startup")
+async def startup_event():
+    try:
+        print("Starting up: Initializing database...")
+        init_db()
+        print("✓ Database initialized successfully")
+    except Exception as e:
+        print(f"⚠ Warning: Database initialization failed: {e}")
+        print("App will continue running but may have issues with caching")
+        # Don't crash the app, just log the warning
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    print("App shutting down...")
 
 
 def _get_cors_origins() -> list[str]:
@@ -73,13 +87,13 @@ async def get_config():
 async def health_check():
     return {"status": "ok"}
 
-@app.get("/api/search", response_model=SearchResponse)
+@app.get("/api/search")
 async def search(
     topic: str = "",
     limit: int = 50,
     sources: Optional[str] = Query(default=None),
     user: dict = Depends(get_current_user)
-) -> SearchResponse:
+):
     if not topic.strip():
         raise HTTPException(status_code=400, detail="Topic cannot be empty")
     if limit < 1:
@@ -92,25 +106,31 @@ async def search(
     
     try:
         papers = fetch_all(topic, allowed_sources=allowed_sources)
+        if not papers:
+            return {"topic": topic, "total": 0, "papers": []}
+            
         papers = extract_findings(papers, topic=topic)
-        final = papers[:limit]
+        final = papers[:limit] if papers else []
         
-        # Ensure all papers are dicts (not dataclass instances)
+        # Ensure all papers are serializable dicts
         papers_data = []
         for p in final:
-            if isinstance(p, dict):
-                papers_data.append(p)
-            else:
-                # If it's a dataclass, convert to dict
-                papers_data.append(vars(p) if hasattr(p, '__dict__') else p)
+            try:
+                if isinstance(p, dict):
+                    papers_data.append(p)
+                else:
+                    # If it's a dataclass or object, convert to dict
+                    papers_data.append(vars(p) if hasattr(p, '__dict__') else dict(p))
+            except Exception as e:
+                print(f"Warning: Could not serialize paper {p}: {e}")
+                continue
         
-        return SearchResponse(
-            topic=topic,
-            total=len(papers_data),
-            papers=papers_data
-        )
+        return {
+            "topic": topic,
+            "total": len(papers_data),
+            "papers": papers_data
+        }
     except Exception as e:
-        import traceback
         print(f"Error in search endpoint: {e}")
         traceback.print_exc()
         raise HTTPException(status_code=500, detail=f"Search failed: {str(e)}")
