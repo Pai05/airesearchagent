@@ -19,16 +19,25 @@ init_db()
 
 def _get_cors_origins() -> list[str]:
     raw = os.getenv("CORS_ORIGINS")
-    if not raw:
-        return [
-            "http://localhost:3000",
-            "http://127.0.0.1:3000",
-            "http://localhost:5500",
-            "http://127.0.0.1:5500",
-        ]
-
-    origins = [origin.strip() for origin in raw.split(",") if origin.strip()]
-    return origins or ["*"]
+    if raw:
+        origins = [origin.strip() for origin in raw.split(",") if origin.strip()]
+        return origins
+    
+    # Default CORS origins for local development
+    default_origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:5500",
+        "http://127.0.0.1:5500",
+        "http://localhost:8080",
+        "http://127.0.0.1:8080",
+    ]
+    
+    # Allow all origins in production if not explicitly configured
+    if os.getenv("ENVIRONMENT") == "production":
+        return ["*"]
+    
+    return default_origins
 
 app.add_middleware(
     CORSMiddleware,
