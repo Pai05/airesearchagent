@@ -62,30 +62,45 @@ def _extract_findings_gemini(abstract: str) -> tuple[list[str], list[str], list[
             }
         ],
         "systemInstruction": {
-            "parts": [{"text": "You are a precise research assistant that returns strict JSON only. Do not wrap in markdown tags like ```json."}]
+            "parts": [{"text": "You are a precise research assistant that returns strict JSON only. Do not wrap in markdown tags like ```json. Always return valid JSON that can be parsed."}]
         },
         "generationConfig": {
             "temperature": 0,
-            "maxOutputTokens": 300,
+            "maxOutputTokens": 500,
             "responseMimeType": "application/json"
         }
     }
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
-    response = requests.post(url, headers=headers, json=payload, timeout=20)
-    response.raise_for_status()
+    try:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent?key={GEMINI_API_KEY}"
+        response = requests.post(url, headers=headers, json=payload, timeout=20)
+        response.raise_for_status()
 
-    data = response.json()
-    content = ""
-    if data.get("candidates"):
-        content = data["candidates"][0].get("content", {}).get("parts", [{}])[0].get("text", "")
+        data = response.json()
         
-    findings, gaps, field_tags = _parse_gemini_response(content)
+        # Debug: log response structure
+        if not data.get("candidates"):
+            raise ValueError(f"No candidates in Gemini response: {data}")
+        
+        content = ""
+        try:
+            content = data["candidates"][0].get("content", {}).get("parts", [{}])[0].get("text", "")
+        except (IndexError, TypeError) as e:
+            raise ValueError(f"Could not extract text from Gemini response: {e}")
+        
+        if not content or not content.strip():
+            raise ValueError("Gemini returned empty response")
+            
+        findings, gaps, field_tags = _parse_gemini_response(content)
 
-    if findings and gaps:
-        return findings, gaps, field_tags
+        if findings and gaps:
+            return findings, gaps, field_tags
+        else:
+            raise ValueError(f"Gemini response did not contain valid findings/gaps JSON. Response: {content[:200]}")
+            
+    except requests.exceptions.RequestException as e:
+        raise ValueError(f"Gemini API error: {e}")
 
-    raise ValueError("Gemini response did not contain valid findings/gaps JSON")
 
 def extract_findings(papers: list[dict], topic: str = "") -> list[dict]:
     """Extract findings and gaps using Gemini when configured, else local mock extractor."""
