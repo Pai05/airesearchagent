@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import os
 from pipeline.fetcher import fetch_all
 from pipeline.extractor import extract_findings
@@ -9,11 +12,26 @@ from backend.auth import get_current_user
 
 app = FastAPI()
 
+
+def _get_cors_origins() -> list[str]:
+    raw = os.getenv("CORS_ORIGINS")
+    if not raw:
+        return [
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "http://localhost:5500",
+            "http://127.0.0.1:5500",
+        ]
+
+    origins = [origin.strip() for origin in raw.split(",") if origin.strip()]
+    return origins or ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_get_cors_origins(),
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_credentials=False,
 )
 
 @app.get("/api/config")
@@ -29,6 +47,11 @@ async def get_config():
             "measurementId": os.getenv("FIREBASE_MEASUREMENT_ID")
         }
     }
+
+
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
 
 @app.get("/api/search")
 async def search(
@@ -53,4 +76,9 @@ async def search(
         return {"topic": topic, "total": len(final), "papers": final}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+frontend_dir = Path(__file__).resolve().parent.parent / "frontend"
+if frontend_dir.exists():
+    app.mount("/", StaticFiles(directory=str(frontend_dir), html=True), name="frontend")
 

@@ -9,29 +9,39 @@ import {
     GoogleAuthProvider,
     signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { apiUrl } from './runtime.js';
+import { FIREBASE_CONFIG_FALLBACK, hasRequiredFirebaseConfig } from './firebase_config.js';
 
 async function getFirebaseConfig() {
     try {
-        const response = await fetch('http://localhost:8000/api/config');
+        const response = await fetch(apiUrl('/api/config'));
         const data = await response.json();
-        return data.firebaseConfig;
+        const backendConfig = data.firebaseConfig || {};
+        const mergedConfig = {
+            ...FIREBASE_CONFIG_FALLBACK,
+            ...backendConfig,
+        };
+
+        if (hasRequiredFirebaseConfig(mergedConfig)) {
+            return mergedConfig;
+        }
+
+        throw new Error('Backend returned an incomplete Firebase config.');
     } catch (error) {
         console.error('Failed to fetch Firebase config from backend:', error);
-        // Fallback to manual config if backend is down
-        return {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID",
-            measurementId: "YOUR_MEASUREMENT_ID"
-        };
+        if (hasRequiredFirebaseConfig(FIREBASE_CONFIG_FALLBACK)) {
+            return FIREBASE_CONFIG_FALLBACK;
+        }
+
+        throw new Error('Firebase configuration is missing apiKey/authDomain/projectId/appId.');
     }
 }
 
 // Initialize Firebase dynamically
 const config = await getFirebaseConfig();
+if (!hasRequiredFirebaseConfig(config)) {
+    throw new Error('Firebase configuration is incomplete. Login cannot start.');
+}
 const app = initializeApp(config);
 export const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();

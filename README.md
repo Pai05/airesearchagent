@@ -7,6 +7,7 @@ pip install fastapi uvicorn anthropic requests
 uvicorn backend.main:app --reload
 API runs at http://localhost:8000
 
+
 ## Endpoints
 GET /api/search?topic=your+topic&limit=50
 Returns array of Paper objects (see shared/schema.py)

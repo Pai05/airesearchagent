@@ -1,9 +1,9 @@
-const BASE_URL = "http://localhost:8000";
+import { apiUrl } from './runtime.js';
 
 export async function searchPapers(topic, limit = 50, sources = []) {
   try {
     const sourcesParam = sources.length > 0 ? `&sources=${sources.join(',')}` : '';
-    const url = `${BASE_URL}/api/search?topic=${encodeURIComponent(topic)}&limit=${limit}${sourcesParam}`;
+    const url = apiUrl(`/api/search?topic=${encodeURIComponent(topic)}&limit=${limit}${sourcesParam}`);
     console.log('Fetching from URL:', url);
     const token = localStorage.getItem('auth_token');
     const response = await fetch(url, {
@@ -13,7 +13,7 @@ export async function searchPapers(topic, limit = 50, sources = []) {
     });
     console.log('Fetch response status:', response.status);
       if (!response.ok) {
-      let message = "could not reach backend. Make sure the server is running at localhost:8000";
+      let message = "could not reach backend. Check the deployed API URL or backend status.";
       try {
         const errorPayload = await response.json();
         if (errorPayload?.detail) {
@@ -26,6 +26,6 @@ export async function searchPapers(topic, limit = 50, sources = []) {
     }
     return await response.json();
   } catch (error) {
-    throw new Error(error?.message || "could not reach backend. Make sure the server is running at localhost:8000");
+    throw new Error(error?.message || "could not reach backend. Check the deployed API URL or backend status.");
   }
 }
