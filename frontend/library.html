@@ -71,24 +71,75 @@
     </header>
 
     <script type="module">
-        import { auth, logout } from './src/auth.js';
-        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { apiUrl } from './src/runtime.js';
+        
+        // First, check if user has an auth token
+        // If no token, redirect to login immediately (before loading heavy modules)
+        async function enforceLogin() {
+            const token = localStorage.getItem('auth_token');
+            
+            // If no token at all, redirect to login
+            if (!token) {
+                console.log('No auth token found, redirecting to login');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Try to verify token with backend
+            try {
+                const response = await fetch(apiUrl('/api/config'), {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.status === 401) {
+                    console.log('Token invalid, redirecting to login');
+                    localStorage.removeItem('auth_token');
+                    window.location.href = 'login.html';
+                    return;
+                }
+            } catch (e) {
+                console.log('Could not verify token, continuing anyway:', e.message);
+            }
+        }
+        
+        // Run auth check immediately
+        await enforceLogin();
+        
+        // Then load Firebase and set up real auth state listener
+        try {
+            const { auth, logout } = await import('./src/auth.js');
+            const { onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js");
 
-        const userEmailEl = document.getElementById('user-email');
-        const signOutLink = document.getElementById('sign-out-link');
+            const userEmailEl = document.getElementById('user-email');
+            const signOutLink = document.getElementById('sign-out-link');
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                userEmailEl.textContent = user.email;
-            } else {
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    if (userEmailEl) userEmailEl.textContent = user.email;
+                    // Save token for API calls
+                    user.getIdToken().then(token => {
+                        localStorage.setItem('auth_token', token);
+                    });
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+
+            if (signOutLink) {
+                signOutLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    logout();
+                });
+            }
+        } catch (e) {
+            console.error('Firebase auth setup failed:', e);
+            // If Firebase fails, check token and stay logged in anyway
+            if (!localStorage.getItem('auth_token')) {
                 window.location.href = 'login.html';
             }
-        });
-
-        signOutLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            logout();
-        });
+        }
     </script>
 
     <main class="container" style="padding-top: 4rem;">
