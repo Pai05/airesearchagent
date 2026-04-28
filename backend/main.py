@@ -9,8 +9,12 @@ from pipeline.extractor import extract_findings
 from typing import Optional, List, Annotated
 from fastapi import Depends
 from backend.auth import get_current_user
+from backend.cache import init_db  # Ensure database is initialized on startup
 
 app = FastAPI()
+
+# Initialize database on startup
+init_db()
 
 
 def _get_cors_origins() -> list[str]:
